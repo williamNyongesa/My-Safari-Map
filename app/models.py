@@ -1,8 +1,13 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
-class Location(db.Model):
+# many locations one weather
+# one day many location
+# one day many weathers
+
+class Location(db.Model,SerializerMixin):
     __tablename__ = "locations"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -14,12 +19,12 @@ class Location(db.Model):
         return f"Place Name {self.name}, in {self.directions} has coordinates {self.coordinates}"
     
      #relationship
-    weathers = db.relationship("Weather", backref="location")
-    days = db.relationship("Day", backref = "location")
+    weather_id = db.Column(db.Integer, db.ForeignKey("weathers.id"))
+    day_id = db.Column(db.Integer, db.ForeignKey("days.id"))
     
     
 class Weather(db.Model):
-    __tablename__ = "weather"
+    __tablename__ = "weathers"
 
     id = db.Column(db.Integer, primary_key=True)
     temp = db.Column(db.String, nullable=False)
@@ -27,7 +32,8 @@ class Weather(db.Model):
     weather_symbol = db.Column(db.String, nullable=False)  # a link probably?
 
     #relationship
-    location_id = db.Column(db.Integer, db.ForeignKey("locations.id"))
+    locations = db.relationship("Location",backref = "weather")
+    # location_id = db.Column(db.Integer, db.ForeignKey("locations.id"))
     day_id = db.Column(db.Integer, db.ForeignKey('days.id'))
 
     def __repr__(self):
@@ -45,5 +51,9 @@ class Day(db.Model):
     time_of_day = db.Column(db.String(10))  #morning, afternoon, evening
 
     #rrelationship
-    location_id = db.Column(db.Integer, db.ForeignKey("locations.id"))
-    weather = db.relationship('Weather', uselist=False, backref='day')
+
+    locations = db.relationship("Location",backref = "day")
+    weathers = db.relationship('Weather', backref='day')
+
+
+
