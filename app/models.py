@@ -3,24 +3,28 @@ from sqlalchemy_serializer import SerializerMixin
 
 db = SQLAlchemy()
 
+
 # many locations one weather
 # one day many location
 # one day many weathers
 
 class Location(db.Model,SerializerMixin):
     __tablename__ = "locations"
-
+    # serialize_rules =("-day.locations","-weather.locations",)
+  
     id = db.Column(db.Integer, primary_key=True)
-    name= db.Column(db.String(55), nullable=False, unique=True)
-    directions = db.Columns(db.String, nullable=False)
-    coordinates = db.Column(db.String, nullable=False)
+    name= db.Column(db.String(55), nullable=False, unique=True) #Nairobi, Kisumu
+    directions = db.Column(db.String, nullable=False) #NE, W,
+    coordinates = db.Column(db.String, nullable=False) 
+
+    weather_id = db.Column(db.Integer, db.ForeignKey("weathers.id"))
+    day_id = db.Column(db.Integer, db.ForeignKey("days.id"))
 
     def __repr__(self):
         return f"Place Name {self.name}, in {self.directions} has coordinates {self.coordinates}"
     
      #relationship
-    weather_id = db.Column(db.Integer, db.ForeignKey("weathers.id"))
-    day_id = db.Column(db.Integer, db.ForeignKey("days.id"))
+ 
     
     
 class Weather(db.Model):
@@ -50,10 +54,11 @@ class Day(db.Model):
     time = db.Column(db.Time, default=db.func.current_time())
     time_of_day = db.Column(db.String(10))  #morning, afternoon, evening
 
-    #rrelationship
+    #relationship
 
     locations = db.relationship("Location",backref = "day")
     weathers = db.relationship('Weather', backref='day')
 
-
+    def __repr__(self):
+        return f"Today is {self.day}"
 
