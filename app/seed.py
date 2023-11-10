@@ -30,5 +30,5 @@ with app.app_context():
     for _ in range(20):
         weather = Weather(
             temp=random.randint(0,40),
-            condition=random.sample(["Sunny", "Windy", "Rainy", "Cloudy", "Calm"]),
+            condition=rc(["Sunny", "Windy", "Rainy", "Cloudy", "Calm"]),
         )
